@@ -87,11 +87,11 @@
             </div>
             <div class="col-md-5 text-right text-lg-left">
               <ul class="site-nav-ul js-clone-nav text-left d-none d-lg-inline-block">
-                <li><a href="#skills-section" class="nav-link">Skills</a></li>
+                <li><a href="#links-section" class="nav-link">Skills</a></li>
                 <li><a href="#services-section" class="nav-link">Services</a></li>
                 <!--<li><a href="#testimonial-section" class="nav-link">Testimonial</a></li>-->
                 <!-- <li><a href="#journal-section" class="nav-link">Journal</a></li> -->
-                <li><a href="#contact-section" class="nav-link">Links</a></li>
+                <li><a href="#links-section" class="nav-link">Links</a></li>
               </ul>
 
               <ul class="site-nav-ul-none-onepage text-right d-inline-block d-lg-none">
@@ -405,7 +405,7 @@
         </div>
       </div>
 
-      <div class="unslate_co--section section-counter" id="skills-section">
+      <div class="unslate_co--section section-counter" id="links-section">
         <div class="container">
           <div class="section-heading-wrap text-center mb-5">
             <h2 class="heading-h2 text-center divider"><span class="gsap-reveal">My Skills</span></h2>
@@ -453,9 +453,9 @@
           </div>
         </div>
       </div>
-      <!-- END .counter 
+      <!-- END .counter -->
 
-      <div class="unslate_co--section" id="testimonial-section">
+      <!--<div class="unslate_co--section" id="testimonial-section">
         <div class="container">
           <div class="section-heading-wrap text-center mb-5">
             <h2 class="heading-h2 text-center divider"><span class="gsap-reveal">My Happy Clients</span></h2>
@@ -519,8 +519,8 @@
 
       </div>
        END testimonial -->
-      <!--
-      <div class="unslate_co--section" id="journal-section">
+      
+      <!-- <div class="unslate_co--section" id="journal-section">
         <div class="container">
           <div class="section-heading-wrap text-center mb-5">
             <h2 class="heading-h2 text-center divider"><span class="gsap-reveal">My Journal</span></h2>
@@ -602,7 +602,7 @@
        END blog posts -->
 
 
-      <!--<div class="unslate_co--section" id="contact-section">
+      <!--<div class="unslate_co--section" id="links-section">
         <div class="container">
           <div class="section-heading-wrap text-center mb-5">
             <h2 class="heading-h2 text-center divider"><span class="gsap-reveal">Get In Touch</span></h2>
@@ -666,7 +666,7 @@
       </div> <!-- END .unslate_co-site-inner -->
 
       <footer class="unslate_co--footer unslate_co--section">
-        <div class="unslate_co--section" id="contact-section">
+        <div class="unslate_co--section" id="links-section">
           <div class="container">
             <div class="section-heading-wrap text-center mb-5">
               <h2 class="heading-h2 text-center divider"><span class="gsap-reveal">Links</span></h2>
@@ -686,6 +686,7 @@
             </div>
           </div>
         </div>
+        
       </footer>
 
       
@@ -697,9 +698,33 @@
     <div class="site-loader-wrap">
       <div class="site-loader"></div>
     </div>
-
+    <!-- Back to Top Button -->
+<button id="back-to-top" class="back-to-top">&uarr; Back to Top</button>
     <script src="js/scripts-dist.js"></script>
     <script src="js/main.js"></script>
-
+    <script>
+      // Get the button
+      const backToTopButton = document.getElementById("back-to-top");
+    
+      // Show the button when the user scrolls down 100px from the top
+      window.onscroll = function() {
+        scrollFunction();
+      };
+    
+      function scrollFunction() {
+        if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+          backToTopButton.style.display = "block";
+        } else {
+          backToTopButton.style.display = "none";
+        }
+      }
+    
+      // When the user clicks on the button, scroll to the top of the document
+      backToTopButton.addEventListener("click", function() {
+        document.body.scrollTop = 0; // For Safari
+        document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+      });
+    </script>
+    
   </body>
 </html>
