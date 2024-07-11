@@ -44,7 +44,7 @@ var siteIstotope = function() {
     var filterValue = $(this).attr('data-filter');
     $container.isotope({ filter: filterValue });
     $('#filters a').removeClass('active');
-    $(this).addClass('active');
+    $(this).addClass('active');z
   });
 
   $container.imagesLoaded()
@@ -316,14 +316,14 @@ var scrollWindow = function() {
 			} 
 
 			// hide / show on scroll
-			if (st > lastScrollTop){
-	      // downscroll code
-	      navbar.removeClass('awake');	
-	      navbar.addClass('sleep');	
-	   	} else {
-	      // upscroll code
-	      navbar.addClass('awake');	
-	   	}
+		// 	if (st > lastScrollTop){
+	    //   // downscroll code
+	    //   navbar.removeClass('awake');	
+	    //   navbar.addClass('sleep');	
+	   	// } else {
+	    //   // upscroll code
+	    //   navbar.addClass('awake');	
+	   	// }
 	   	lastScrollTop = st;
 			
 
@@ -676,3 +676,16 @@ var animateReveal = function() {
 
 }
 
+$(document).ready(function() {
+	$('#projectModal').on('show.bs.modal', function (event) {
+	  var button = $(event.relatedTarget); // Button that triggered the modal
+	  var title = button.data('title'); // Extract info from data-* attributes
+	  var description = button.data('description');
+	  var link = button.data('link');
+  
+	  var modal = $(this);
+	  modal.find('.modal-title').text(title);
+	  modal.find('#projectDescription').text(description);
+	  modal.find('#projectLink').attr('href', link);
+	});
+  });
