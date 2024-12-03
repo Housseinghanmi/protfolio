@@ -1,3 +1,4 @@
+
 AOS.init({
  	duration: 800,
  	easing: 'ease',
@@ -689,6 +690,3 @@ $(document).ready(function() {
 	  modal.find('#projectLink').attr('href', link);
 	});
   });
-  gtag('event', 'page_view', {
-    page_path: window.location.pathname
-});
