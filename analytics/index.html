@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio Analytics</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Variables ───────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #080c10;
+      --surface:   #0e1419;
+      --border:    #1c2530;
+      --accent:    #00d4ff;
+      --accent2:   #00ff9d;
+      --warn:      #ff6b35;
+      --text:      #c8d8e8;
+      --muted:     #4a6070;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-disp: 'Syne', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── Noise overlay ───────────────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.4;
+    }
+
+    /* ── Scanline ────────────────────────────────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,212,255,0.01) 2px,
+        rgba(0,212,255,0.01) 4px
+      );
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ── Layout ──────────────────────────────────────────────────────── */
+    .shell {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px 24px 60px;
+    }
+
+    /* ── Header ──────────────────────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0 28px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 32px;
+      animation: fadeDown 0.6s ease both;
+    }
+
+    .logo {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .logo-text {
+      font-family: var(--font-disp);
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-badge {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 2px 7px;
+      border-radius: 2px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .live-dot {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--accent2);
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+
+    .live-dot::before {
+      content: '';
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--accent2);
+      box-shadow: 0 0 8px var(--accent2);
+      animation: pulse 2s infinite;
+    }
+
+    .btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 7px 14px;
+      cursor: pointer;
+      border-radius: 2px;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-danger:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    /* ── Stat Cards ──────────────────────────────────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 20px 22px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+    }
+
+    .stat-card:nth-child(2)::before { background: linear-gradient(90deg, var(--accent2), transparent); }
+    .stat-card:nth-child(3)::before { background: linear-gradient(90deg, #a78bfa, transparent); }
+    .stat-card:nth-child(4)::before { background: linear-gradient(90deg, var(--warn), transparent); }
+
+    .stat-label {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .stat-value {
+      font-family: var(--font-disp);
+      font-size: 36px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ── Two-col layout ──────────────────────────────────────────────── */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 860px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* ── Panel ───────────────────────────────────────────────────────── */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-title {
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .panel-count {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ── Bar chart ───────────────────────────────────────────────────── */
+    .bar-list {
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 120px 1fr 40px;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bar-label {
+      font-size: 11px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bar-track {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transform-origin: left;
+      animation: barGrow 0.8s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    .bar-row:nth-child(2) .bar-fill { background: var(--accent2); }
+    .bar-row:nth-child(3) .bar-fill { background: #a78bfa; }
+    .bar-row:nth-child(4) .bar-fill { background: var(--warn); }
+    .bar-row:nth-child(5) .bar-fill { background: #f59e0b; }
+
+    .bar-num {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    /* ── Visitor table ───────────────────────────────────────────────── */
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead tr {
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      padding: 10px 16px;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    tbody tr:hover { background: rgba(0,212,255,0.03); }
+    tbody tr:last-child { border-bottom: none; }
+
+    td {
+      padding: 11px 16px;
+      font-size: 12px;
+      color: var(--text);
+      white-space: nowrap;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .td-page { color: var(--accent); }
+    .td-ip   { color: var(--muted); font-size: 11px; }
+    .td-loc  { color: var(--accent2); }
+
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 2px;
+      background: rgba(0,212,255,0.08);
+      border: 1px solid rgba(0,212,255,0.2);
+      color: var(--accent);
+    }
+
+    /* ── Empty / Loading ─────────────────────────────────────────────── */
+    .empty {
+      padding: 40px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    /* ── Map placeholder ─────────────────────────────────────────────── */
+    #map {
+      height: 300px;
+      background: var(--bg);
+      position: relative;
+    }
+
+    /* ── Toast ───────────────────────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: 12px;
+      padding: 12px 20px;
+      border-radius: 4px;
+      display: none;
+      z-index: 9999;
+      animation: fadeUp 0.3s ease;
+    }
+
+    /* ── Animations ──────────────────────────────────────────────────── */
+    @keyframes fadeDown  { from { opacity:0; transform:translateY(-12px) } to { opacity:1; transform:none } }
+    @keyframes fadeUp    { from { opacity:0; transform:translateY(12px)  } to { opacity:1; transform:none } }
+    @keyframes pulse     { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
+    @keyframes spin      { to { transform: rotate(360deg) } }
+    @keyframes barGrow   { from { transform: scaleX(0) } to { transform: scaleX(1) } }
+
+    .stat-card:nth-child(1) { animation-delay: 0.05s }
+    .stat-card:nth-child(2) { animation-delay: 0.10s }
+    .stat-card:nth-child(3) { animation-delay: 0.15s }
+    .stat-card:nth-child(4) { animation-delay: 0.20s }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <span class="logo-text">Analytics</span>
+      <span class="logo-badge">Live</span>
+    </div>
+    <div class="header-right">
+      <span class="live-dot" id="liveStatus">CONNECTED</span>
+      <button class="btn" onclick="loadData()">↻ Refresh</button>
+      <button class="btn btn-danger" onclick="clearData()">⌫ Clear</button>
+    </div>
+  </header>
+
+  <!-- Stat Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total Visits</div>
+      <div class="stat-value" id="statTotal">—</div>
+      <div class="stat-sub">all time</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Today</div>
+      <div class="stat-value" id="statToday">—</div>
+      <div class="stat-sub">last 24 hours</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Unique Sessions</div>
+      <div class="stat-value" id="statSessions">—</div>
+      <div class="stat-sub">by session ID</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Top Page</div>
+      <div class="stat-value" style="font-size:18px;margin-top:6px" id="statTopPage">—</div>
+      <div class="stat-sub">most visited</div>
+    </div>
+  </div>
+
+  <!-- Pages + Timezones -->
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Pages</span>
+        <span class="panel-count" id="pageCount"></span>
+      </div>
+      <div class="bar-list" id="pagesList">
+        <div class="empty"><span class="spinner"></span>Loading…</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Timezones</span>
+        <span class="panel-count" id="tzCount"></span>
+      </div>
+      <div class="bar-list" id="tzList">
+        <div class="empty"><span class="spinner"></span>Loading…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Browsers + Languages -->
+  <div class="grid-2" style="margin-bottom:16px">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Browsers</span>
+      </div>
+      <div class="bar-list" id="browserList">
+        <div class="empty"><span class="spinner"></span>Loading…</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Languages</span>
+      </div>
+      <div class="bar-list" id="langList">
+        <div class="empty"><span class="spinner"></span>Loading…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Visitors Table -->
+  <div class="panel" style="margin-bottom:16px">
+    <div class="panel-header">
+      <span class="panel-title">Recent Visitors</span>
+      <span class="panel-count" id="recentCount"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Page</th>
+            <th>IP</th>
+            <th>Location</th>
+            <th>Timezone</th>
+            <th>Browser</th>
+            <th>Referrer</th>
+            <th>Session</th>
+          </tr>
+        </thead>
+        <tbody id="visitorsTable">
+          <tr><td colspan="8" class="empty"><span class="spinner"></span>Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Leaflet for map dots (optional) -->
+<script>
+  // ── CONFIG — fill these in ─────────────────────────────────────────────────
+  const SUPABASE_URL      = 'https://jmudlsawkminowvaqgif.supabase.co';  
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptdWRsc2F3a21pbm93dmFxZ2lmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NTYxNzUsImV4cCI6MjA4ODMzMjE3NX0.S2j-IORcXlK-_5UCKFb7a5v_7WeMvDiYL4d7SDTIUmk';  
+  // ──────────────────────────────────────────────────────────────────────────
+
+  // ── Supabase fetch ─────────────────────────────────────────────────────────
+  async function supabaseFetch(query = '') {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/visitors?${query}&order=recorded_at.desc`,
+      {
+        headers: {
+          'apikey':        SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        }
+      }
+    );
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+  }
+
+  // ── Toast ──────────────────────────────────────────────────────────────────
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 3000);
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function countBy(arr, key) {
+    return arr.reduce((acc, item) => {
+      const v = item[key] || 'unknown';
+      acc[v] = (acc[v] || 0) + 1;
+      return acc;
+    }, {});
+  }
+
+  function topN(obj, n = 5) {
+    return Object.entries(obj)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, n);
+  }
+
+  function renderBars(containerId, entries) {
+    const el = document.getElementById(containerId);
+    if (!entries.length) { el.innerHTML = '<div class="empty">No data yet</div>'; return; }
+    const max = entries[0][1];
+    el.innerHTML = entries.map(([label, count]) => `
+      <div class="bar-row">
+        <span class="bar-label" title="${label}">${label}</span>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${(count/max*100).toFixed(1)}%"></div>
+        </div>
+        <span class="bar-num">${count}</span>
+      </div>
+    `).join('');
+  }
+
+  function formatTime(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleString('en-GB', {
+      month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  }
+
+  function getBrowser(ua = '') {
+    if (/firefox/i.test(ua))   return 'Firefox';
+    if (/edg/i.test(ua))       return 'Edge';
+    if (/chrome/i.test(ua))    return 'Chrome';
+    if (/safari/i.test(ua))    return 'Safari';
+    if (/opera|opr/i.test(ua)) return 'Opera';
+    return ua || 'Unknown';
+  }
+
+  // ── Load & render ──────────────────────────────────────────────────────────
+  async function loadData() {
+    document.getElementById('liveStatus').textContent = 'LOADING…';
+    try {
+      const visitors = await supabaseFetch('select=*&limit=1000');
+
+      // ── Stats ──
+      const total = visitors.length;
+      const now   = Date.now();
+      const today = visitors.filter(v =>
+        now - new Date(v.recorded_at).getTime() < 86400000
+      ).length;
+      const sessions = new Set(visitors.map(v => v.session_id)).size;
+      const pages    = countBy(visitors, 'page');
+      const topPage  = topN(pages, 1)[0]?.[0] || '—';
+
+      document.getElementById('statTotal').textContent    = total;
+      document.getElementById('statToday').textContent    = today;
+      document.getElementById('statSessions').textContent = sessions;
+      document.getElementById('statTopPage').textContent  = topPage;
+
+      // ── Bar charts ──
+      const pageEntries    = topN(pages, 8);
+      const tzEntries      = topN(countBy(visitors, 'timezone'), 8);
+      const browserEntries = topN(countBy(visitors, 'user_agent'), 6);
+      const langEntries    = topN(countBy(visitors, 'language'), 6);
+
+      renderBars('pagesList',   pageEntries);
+      renderBars('tzList',      tzEntries);
+      renderBars('browserList', browserEntries);
+      renderBars('langList',    langEntries);
+
+      document.getElementById('pageCount').textContent    = `${pageEntries.length} pages`;
+      document.getElementById('tzCount').textContent      = `${tzEntries.length} zones`;
+
+      // ── Table (latest 50) ──
+      const recent = visitors.slice(0, 50);
+      document.getElementById('recentCount').textContent = `${recent.length} of ${total}`;
+
+      const tbody = document.getElementById('visitorsTable');
+      if (!recent.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty">No visitors yet — deploy your site and visit it!</td></tr>';
+      } else {
+        tbody.innerHTML = recent.map(v => `
+          <tr>
+            <td>${formatTime(v.recorded_at)}</td>
+            <td class="td-page">${v.page || '/'}</td>
+            <td class="td-ip">${v.ip_address || '—'}</td>
+            <td class="td-loc">${
+              v.latitude && v.longitude
+                ? `${parseFloat(v.latitude).toFixed(2)}, ${parseFloat(v.longitude).toFixed(2)}`
+                : '—'
+            }</td>
+            <td>${v.timezone || '—'}</td>
+            <td><span class="badge">${getBrowser(v.user_agent)}</span></td>
+            <td>${v.referrer || 'direct'}</td>
+            <td class="td-ip">${(v.session_id || '').substring(0, 14)}…</td>
+          </tr>
+        `).join('');
+      }
+
+      document.getElementById('liveStatus').textContent = 'CONNECTED';
+      toast('✓ Data refreshed');
+    } catch (err) {
+      console.error(err);
+      document.getElementById('liveStatus').textContent = 'ERROR';
+      toast('✗ Failed to load — check Supabase config');
+    }
+  }
+
+  // ── Clear data ─────────────────────────────────────────────────────────────
+  async function clearData() {
+    if (!confirm('Delete ALL visitor records from Supabase? This cannot be undone.')) return;
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/visitors?id=neq.00000000-0000-0000-0000-000000000000`,
+        {
+          method: 'DELETE',
+          headers: {
+            'apikey':        SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        }
+      );
+      if (!res.ok) throw new Error(await res.text());
+      toast('✓ All data cleared');
+      loadData();
+    } catch (err) {
+      console.error(err);
+      toast('✗ Clear failed — check Supabase permissions');
+    }
+  }
+
+  // ── Boot ───────────────────────────────────────────────────────────────────
+  loadData();
+  setInterval(loadData, 60000); // auto-refresh every 60s
+</script>
+</body>
+</html>

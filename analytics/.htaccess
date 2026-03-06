@@ -1,0 +1,20 @@
+# Password Protection for Analytics Dashboard
+# This file restricts access to the dashboard
+
+AuthType Basic
+AuthName "Portfolio Analytics - Restricted Access"
+AuthUserFile /home/username/.htpasswd
+Require valid-user
+
+# Additional security headers
+Header set X-Content-Type-Options "nosniff"
+Header set X-Frame-Options "SAMEORIGIN"
+Header set X-XSS-Protection "1; mode=block"
+
+# Disable directory listing
+Options -Indexes
+
+# Prevent access to index files directly (must go through .htaccess)
+<Files "auth.php">
+    Require all granted
+</Files>

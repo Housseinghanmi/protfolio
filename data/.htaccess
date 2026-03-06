@@ -1,0 +1,12 @@
+# Protect visitor data from external access
+# Place this file in the /data directory
+
+# Deny all direct access to this directory
+<FilesMatch ".*">
+    Deny from all
+</FilesMatch>
+
+# Additional security headers
+Header set X-Content-Type-Options "nosniff"
+Header set X-Frame-Options "DENY"
+Header set X-XSS-Protection "1; mode=block"
