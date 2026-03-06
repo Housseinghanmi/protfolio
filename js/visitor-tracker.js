@@ -15,10 +15,10 @@
     apiEndpoint: '/.netlify/functions/track-visitor',
 
     emailjs: {
-      publicKey:  'eYDWq8ZhkQ-pdwDxO',
-      serviceId:  'service_ex5fpms',
-      templateId: 'template_pslk90u'
-    },
+  publicKey:  'eYDWq8ZhkQ-pdwDxO',
+  serviceId:  'service_y53fcwp',
+  templateId: 'template_pslk90u'
+},
 
     enableGeolocation: true,
 
