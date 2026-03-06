@@ -398,6 +398,20 @@
   </style>
 </head>
 <body>
+    <script>
+  (function() {
+    const correct = 'jackout42OK@'; 
+    const key = 'analytics_auth';
+    if (sessionStorage.getItem(key) !== correct) {
+      const input = prompt('Enter password:');
+      if (input !== correct) {
+        document.documentElement.innerHTML = '<h2 style="font-family:monospace;padding:40px;color:red">Access denied.</h2>';
+        throw new Error('Unauthorized');
+      }
+      sessionStorage.setItem(key, input);
+    }
+  })();
+</script>
 <div class="shell">
 
   <!-- Header -->

@@ -1,4 +1,2 @@
-[[headers]]
-  for = "/analytics/*"
-  [headers.values]
-    Basic-Auth = "admin:jackout42OK@"
+[functions]
+  directory = "netlify/functions"
