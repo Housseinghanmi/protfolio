@@ -8,7 +8,7 @@ Edit `php/config.php`:
 
 ```php
 // Line 6: Your email
-define('ADMIN_EMAIL', 'your-email@gmail.com');
+define('ADMIN_EMAIL', 'houcaineghanmi@gmail.com');
 
 // Line 9: Enable notifications
 define('SEND_EMAIL_NOTIFICATIONS', true);
