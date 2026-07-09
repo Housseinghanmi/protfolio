@@ -16,8 +16,8 @@
 
     emailjs: {
   publicKey:  'eYDWq8ZhkQ-pdwDxO',
-  serviceId:  'service_y53fcwp',
-  templateId: 'template_pslk90u'
+  serviceId:  'service_cgpp6gk',
+  templateId: 'template_la538wo'
 },
 
     enableGeolocation: true,
